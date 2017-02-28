@@ -1,0 +1,103 @@
+
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class LoadEmpList
+ */
+@WebServlet(name="LoadEmpList", urlPatterns = {"/LoadEmpList"})
+public class LoadEmpList extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public LoadEmpList() {
+        super();
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	{
+		response.setContentType("text/html;charset= windows-31j");
+		PrintWriter writer = response.getWriter();
+		writer.println("<HTML>");
+		writer.println("<BODY>");
+
+		Statement stmt = this.CreateStatement();
+		if (stmt == null)
+		{
+			writer.println("DBとの接続に失敗しました。");
+			writer.println("</BODY>");
+			writer.println("</HTML>");
+			return;
+		}
+
+		try
+		{
+			String sql = "SELECT * FROM EMP";
+			ResultSet rs = stmt.executeQuery(sql);
+			while(rs.next())
+			{
+				writer.println("ID : ");
+				writer.println(rs.getString("ID"));
+				writer.println("Name : ");
+				writer.println(rs.getString("Name"));
+				writer.println(rs.getString("<div>"));
+			}
+			rs.close();
+
+		}
+		catch (SQLException e)
+		{
+			writer.println("SQLの実行に失敗しました。");
+			writer.println("</BODY>");
+			writer.println("</HTML>");
+		}
+		try
+		{
+			stmt.close();
+		}
+		catch (SQLException e)
+		{
+		}
+
+		writer.println("</BODY>");
+		writer.println("</HTML>");
+
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
+	}
+
+	private Statement CreateStatement()
+	{
+		try {
+			Connection conn = DriverManager.getConnection("jdbc:sqlserver://127.0.0.1:1433;DatabaseName=TEST;", "hsakai", "0-system");
+			Statement stmt = conn.createStatement();
+			return stmt;
+		} catch (SQLException e) {
+			return null;
+		}
+
+	}
+
+}
